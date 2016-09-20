@@ -68,6 +68,7 @@ def get_disk():
 
     return info
 
+
 # get network info
 # - bytes (sent, recv) (1 sec)
 # - packet (sent, recv) (1 sec)
@@ -166,7 +167,6 @@ def main():
         'proc': get_proc(),
         'sys': get_sys(),
     }
-
 
     if NETWORK_REPORT:
         success = report(info)
