@@ -2,10 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-ProcessUsage_Type = (
-        ('C','CPU'),
-        ('M','Memory'),
-)
 
 # To-do 
 # Server class should have the attribute about backup status
@@ -41,7 +37,7 @@ class DiskUsage(models.Model):
     total = models.IntegerField() # byte
 
 class ProcessUsage(models.Model): 
-    ProcessUsage_Type = (
+    PROCESSUSAGE_TYPE = (
         ('C','CPU'),
         ('M','Memory'),
     )
@@ -51,12 +47,28 @@ class ProcessUsage(models.Model):
     order = models.IntegerField() #top 10 order
     cpu = models.DecimalField(max_digits=20, decimal_place=3)
     memory = models.DecimalField(max_digits=20, decimal_place=3)
-    type = models.CharField(max_length=1, choices=ProcessUsage_Type)
+    type = models.CharField(max_length=1, choices=PROCESSUSAGE_TYPE)
 
 class ErrorLog(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
-    datetime = models.DateTimeField() # 서버저장시간 or client 정보 획슫 시간?
+    datetime = models.DateTimeField() # 서버저장시간 or client 정보 획득 시간?
     log = models.TextField()
 
+class BackupTarget(models.Model):
+    server = models.ForeignKey('Server',db_index=True)
+    path = models.CharField(max_length=255)
+    period = models.CharField(max_length=30)
 
-    
+class BackupLog(models.Model):
+    server = models.ForeignKey('Server',db_index=True)
+    log = models.TextField()
+    datetime = models.DateTimeField()
+    target = models.ForeignKey('BackupTarget',db_index=True)
+    success = models.BooleanField()
+
+
+
+
+
+
+
