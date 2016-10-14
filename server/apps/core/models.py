@@ -21,17 +21,18 @@ class UsageLog(models.Model):
     
 class CpuUsage(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
-    user = models.Decimal(max_digits=20, decimal_place=3) # 100%는 어떻게함
-    system = models.Decimal(max_digits=20, decimal_place=3)
-    idle = models.Decimal(max_digits=20, decimal_place=3)
+    user = models.DecimalField(max_digits=20, decimal_places=3) # 100%는 어떻게함
+    system = models.DecimalField(max_digits=20, decimal_places=3)
+    idle = models.DecimalField(max_digits=20, decimal_places=3)
 
 class MemoryUsage(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
-    swap_total = models.IntegerField() # byte
-    swap_used = models.IntegerField() # byte
-    virt_avail = models.IntegerField() # byte
-    virt_used = models.IntegerField() # byte
-
+    swap_total = models.BigIntegerField() # byte
+    swap_used = models.BigIntegerField() # byte
+    virt_avail = models.BigIntegerField() # byte
+    virt_used = models.BigIntegerField() # byte
+    virt_total = models.BigIntegerField()
+    
 class DiskUsage(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
     device_name = models.CharField(max_length=30) # ex) dev/sda ...
@@ -49,14 +50,11 @@ class ProcessUsage(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
     name = models.CharField(max_length=127)
     order = models.IntegerField() #top 10 order
-    cpu = models.DecimalField(max_digits=20, decimal_place=3)
-    memory = models.DecimalField(max_digits=20, decimal_place=3)
+    cpu = models.DecimalField(max_digits=20, decimal_places=3)
+    memory = models.DecimalField(max_digits=20, decimal_places=3)
     type = models.CharField(max_length=1, choices=ProcessUsage_Type)
 
 class ErrorLog(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
     datetime = models.DateTimeField() # 서버저장시간 or client 정보 획슫 시간?
     log = models.TextField()
-
-
-    
