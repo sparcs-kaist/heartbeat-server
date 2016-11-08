@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from apps.core import views as core_view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/update/', core_view.update),
 ]

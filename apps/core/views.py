@@ -2,16 +2,19 @@ from django.http import JsonResponse
 from django.http.response import HttpResponseBadRequest, \
     HttpResponseForbidden, HttpResponseNotFound, HttpResponseNotAllowed
 from django.shortcuts import render
-from core.models import Server
+from django.views.decorators.csrf import csrf_exempt
+from apps.core.models import Server
+import json
 
 
 # /api/update
+@csrf_exempt
 def update(request):
     if request.method != 'POST':
-        return HttpResponseNotAllowed()
+        return HttpResponseNotAllowed('POST')
 
     try:
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode('utf-8'))
     except:
         return HttpResponseBadRequest()
 

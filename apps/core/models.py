@@ -8,6 +8,9 @@ class Server(models.Model):
     ip = models.GenericIPAddressField()
     key = models.CharField(max_length=255)
 
+    def __str__(self):
+        return '%s (%s)' % (self.name, self.alias)
+
 
 class UsageLog(models.Model):
     server = models.ForeignKey('Server', db_index=True)
@@ -63,6 +66,9 @@ class BackupTarget(models.Model):
     server = models.ForeignKey('Server',db_index=True)
     path = models.CharField(max_length=255)
     period = models.CharField(max_length=30)
+
+    def __str__(self):
+        return '%s: %s - %s' % (self.server, self.path, self.period)
 
 
 class BackupLog(models.Model):
