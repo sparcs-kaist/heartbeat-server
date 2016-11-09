@@ -5,9 +5,8 @@ from django.http import JsonResponse
 from django.http.response import HttpResponse, HttpResponseBadRequest, \
     HttpResponseForbidden, HttpResponseNotFound, HttpResponseNotAllowed
 from django.shortcuts import render, redirect
-from apps.core.models import (Server, UsageLog, CpuUsage, MemoryUsage,
-                         DiskUsage, ProcessUsage, NetworkUsage, ErrorLog,
-                         BackupTarget, BackupLog)
+from apps.core.models import Server, UsageLog, CpuUsage, MemoryUsage, \
+    DiskUsage, ProcessUsage, NetworkUsage, ErrorLog, BackupTarget, BackupLog
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from apps.core.models import Server
@@ -15,6 +14,7 @@ from apps.core.sparcsssov2 import Client
 import random
 import json
 import datetime
+
 
 sso_client = Client(settings.SSO_ID, settings.SSO_KEY)
 
@@ -63,7 +63,6 @@ def login_callback(request):
     return redirect('/')
 
 
-
 # /logout/
 def logout(request):
     if not request.user.is_authenticated():
@@ -108,7 +107,7 @@ def update(request):
     server = servers[0]
     if server.key != server_key:
         return HttpReponseForbidden()
-    
+
     # update here
     print("now update!!!!!!!!!!!")
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -118,7 +117,7 @@ def update(request):
         ip = request.META.get('REMOTE_ADDR')
     server.ip = ip
     server.save()
-    
+
     info = data['info']
     usage = UsageLog.objects.create(server=server, datetime=timezone.now())
     usage.save()
@@ -130,7 +129,7 @@ def update(request):
                                         mount_point=v['mount_point'],
                                         used=v['used'], total=v['total'])
         disk.save()
-        
+
     mem_info = info['mem']
     mem = MemoryUsage.objects.create(usagelog=usage, swap_total=mem_info['swap']['total'],
                                      swap_used=mem_info['swap']['used'],
@@ -158,10 +157,12 @@ def update(request):
     for k, v in data['errors'].items():
         try:
             error = ErrorLog.objects.create(usagelog=usage,
-                                        datetime=timezone.make_aware(datetime.datetime.fromtimestamp(
-                                            int(k))), log=v)
+                                            datetime=timezone.make_aware(
+                                                datetime.datetime.fromtimestamp(
+                                                    int(k))),
+                                            log=v)
             error.save()
         except:
             continue
-        
+
     return JsonResponse({'success': True})
