@@ -18,6 +18,12 @@ from django.contrib import admin
 from apps.core import views as core_view
 
 urlpatterns = [
+    url(r'^$', core_view.main),
+    url(r'^login/$', core_view.login),
+    url(r'^login/callback/$', core_view.login_callback),
+    url(r'^logout/$', core_view.logout),
+    url(r'^unregister/$', core_view.unregister),
+    url(r'^api/update/$', core_view.update),
+
     url(r'^admin/', admin.site.urls),
-    url(r'^api/update/', core_view.update),
 ]
