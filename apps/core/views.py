@@ -150,8 +150,8 @@ def update(request):
 
     net = NetworkUsage.objects.create(usagelog=usage, bytes_recv=info['net']['bytes_recv'],
                                       bytes_sent=info['net']['bytes_sent'],
-                                      packet_recv=info['net']['packets_recv'],
-                                      packet_sent=info['net']['packets_sent'])
+                                      packets_recv=info['net']['packets_recv'],
+                                      packets_sent=info['net']['packets_sent'])
     net.save()
 
     for k, v in data['errors'].items():
