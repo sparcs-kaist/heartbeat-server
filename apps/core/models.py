@@ -4,8 +4,8 @@ from django.db import models
 # TODO: Server class should have the attribute about backup status
 class Server(models.Model):
     name = models.CharField(unique=True, max_length=30)
-    alias = models.CharField(max_length=255)
-    ip = models.GenericIPAddressField()
+    alias = models.CharField(blank=True, null=True, max_length=255)
+    ip = models.GenericIPAddressField(blank=True, null=True)
     key = models.CharField(max_length=255)
 
 
@@ -53,6 +53,14 @@ class ProcessUsage(models.Model):
     type = models.CharField(max_length=1, choices=PROCESSUSAGE_TYPE)
 
 
+class NetworkUsage(models.Model):
+    usagelog = models.ForeignKey('UsageLog', db_index=True)
+    bytes_recv = models.IntegerField() # bytes
+    bytes_sent = models.IntegerField()
+    packets_recv = models.IntegerField() # count
+    packets_sent = models.IntegerField()
+
+    
 class ErrorLog(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
     datetime = models.DateTimeField() # 서버저장시간 or client 정보 획득 시간?
