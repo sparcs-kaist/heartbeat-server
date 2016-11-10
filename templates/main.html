@@ -15,7 +15,12 @@
         </ul>
     </div>
     {% for server in servers %}
-    <div id="{{server.name}}" class="col s12">{{server.alias}} statistics</div>
+    <div id="{{server.name}}" class="col s12">
+        <canvas id="{{server.name}}-cpu" width="800" height="100"></canvas>
+        <canvas id="{{server.name}}-mem" width="800" height="100"></canvas>
+        <canvas id="{{server.name}}-net" width="800" height="100"></canvas>
+        <canvas id="{{server.name}}-disk" width="800" height="100"></canvas>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

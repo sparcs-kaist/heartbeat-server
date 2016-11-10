@@ -25,8 +25,8 @@ urlpatterns = [
     url(r'^unregister/$', core_view.unregister),
 
     url(r'^api/server/$', core_view.server_list),
-    url(r'^api/server/(?P<name>\w+)/$', core_view.server_get),
     url(r'^api/server/update/$', core_view.server_update),
+    url(r'^api/server/(?P<name>\w+)/$', core_view.server_get),
 
     url(r'^admin/', admin.site.urls),
 ]
