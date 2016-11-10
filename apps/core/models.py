@@ -6,6 +6,7 @@ class Server(models.Model):
     name = models.CharField(unique=True, max_length=30)
     alias = models.CharField(blank=True, null=True, max_length=255)
     ip = models.GenericIPAddressField(blank=True, null=True)
+    is_public = models.BooleanField(default=False)
     key = models.CharField(max_length=255)
 
     def __str__(self):

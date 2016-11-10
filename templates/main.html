@@ -6,5 +6,16 @@
 {% endblock %}
 
 {% block content %}
-<p>Hello, World!</p>
+<div class="row">
+    <div class="col s12">
+        <ul class="tabs">
+            {% for server in servers %}
+            <li class="tab col s3"><a href="#{{server.name}}">{{server.alias}} ({{server.name}})</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% for server in servers %}
+    <div id="{{server.name}}" class="col s12">{{server.alias}} statistics</div>
+    {% endfor %}
+</div>
 {% endblock %}

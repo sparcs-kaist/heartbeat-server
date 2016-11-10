@@ -21,7 +21,10 @@ sso_client = Client(settings.SSO_ID, settings.SSO_KEY)
 
 # /
 def main(request):
-    return render(request, 'main.html')
+    servers = Server.objects.all()
+    if not request.user.is_authenticated():
+        servers = servers.filter(is_public=True)
+    return render(request, 'main.html', {'servers': servers})
 
 
 # /login/
@@ -80,16 +83,41 @@ def unregister(request):
     return HttpResponse('<script>alert("You cannot unregister SPARCS Heartbeat."); window.history.back();</script>')
 
 
-# /api/update
+# /api/server/
+def server_list(request):
+    servers = Server.objects.all()
+    if not request.user.is_authenticated():
+        servers = servers.filter(is_public=True)
+
+    data = {'servers': []}
+    data['servers'] = list(map(lambda x: \
+        {'name': x.name, 'alias': x.alias, 'public': x.is_public}, servers))
+    return JsonResponse(data)
+
+
+# /api/server/<name>/
+def server_get(request, name):
+    servers = Server.objects.filter(name=name)
+    if len(servers) == 0:
+        return HttpResponseNotFound()
+
+    server = servers[0]
+    if not server.is_public and not request.user.is_authenticated():
+        return HttpReponseForbidden()
+
+    # type not in ['cpu', 'mem', 'net', 'disk', 'proc', 'backup']:
+    return JsonResponse({'success': True})
+
+
+# /api/server/update/
 @csrf_exempt
-def update(request):
+def server_update(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
 
     try:
         data = json.loads(request.body.decode('utf-8'))
     except:
-        print('parse failed')
         return HttpResponseBadRequest()
 
     if 'server' not in data or \
@@ -99,7 +127,6 @@ def update(request):
     server_name = data['server']['name']
     server_key = data['server']['key']
 
-    print('find server')
     servers = Server.objects.filter(name=server_name)
     if len(servers) == 0:
         return HttpResponseNotFound()
@@ -108,30 +135,32 @@ def update(request):
     if server.key != server_key:
         return HttpReponseForbidden()
 
-    # update here
-    print("now update!!!!!!!!!!!")
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    server.ip = ip
-    server.save()
+    # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    # if x_forwarded_for:
+    #     ip = x_forwarded_for.split(',')[0]
+    # else:
+    #     ip = request.META.get('REMOTE_ADDR')
+    # server.ip = ip
+    # server.save()
 
     info = data['info']
     usage = UsageLog.objects.create(server=server, datetime=timezone.now())
     usage.save()
-    cpu = CpuUsage.objects.create(usagelog=usage, user=info['cpu']['user'],
-                                  system=info['cpu']['system'], idle=info['cpu']['system'])
+    cpu = CpuUsage.objects.create(usagelog=usage,
+                                  user=info['cpu']['user'],
+                                  system=info['cpu']['system'],
+                                  idle=info['cpu']['system'])
     cpu.save()
     for k, v in info['disk'].items():
-        disk = DiskUsage.objects.create(usagelog=usage, device_name=k, fs_type=v['fs_type'],
+        disk = DiskUsage.objects.create(usagelog=usage, device_name=k,
+                                        fs_type=v['fs_type'],
                                         mount_point=v['mount_point'],
                                         used=v['used'], total=v['total'])
         disk.save()
 
     mem_info = info['mem']
-    mem = MemoryUsage.objects.create(usagelog=usage, swap_total=mem_info['swap']['total'],
+    mem = MemoryUsage.objects.create(usagelog=usage,
+                                     swap_total=mem_info['swap']['total'],
                                      swap_used=mem_info['swap']['used'],
                                      virt_avail=mem_info['virtual']['avail'],
                                      virt_used=mem_info['virtual']['used'],
@@ -140,15 +169,18 @@ def update(request):
 
     proc_info = info['proc']
     for i, p in enumerate(proc_info['top_cpu']):
-        proc_cpu = ProcessUsage.objects.create(usagelog=usage, type='C', name=p['name'],
-                                               order=i+1, cpu=p['cpu'], memory=p['mem'])
+        proc_cpu = ProcessUsage.objects.create(usagelog=usage, type='C',
+                                               name=p['name'], order=i+1,
+                                               cpu=p['cpu'], memory=p['mem'])
         proc_cpu.save()
     for i, p in enumerate(proc_info['top_mem']):
-        proc_mem = ProcessUsage.objects.create(usagelog=usage, type='M', name=p['name'],
-                                               order=i+1, cpu=p['cpu'], memory=p['mem'])
+        proc_mem = ProcessUsage.objects.create(usagelog=usage, type='M',
+                                               name=p['name'], order=i+1,
+                                               cpu=p['cpu'], memory=p['mem'])
         proc_mem.save()
 
-    net = NetworkUsage.objects.create(usagelog=usage, bytes_recv=info['net']['bytes_recv'],
+    net = NetworkUsage.objects.create(usagelog=usage,
+                                      bytes_recv=info['net']['bytes_recv'],
                                       bytes_sent=info['net']['bytes_sent'],
                                       packets_recv=info['net']['packets_recv'],
                                       packets_sent=info['net']['packets_sent'])
