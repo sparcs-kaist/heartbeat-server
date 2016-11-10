@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from apps.core.models import Server
 from apps.core.sparcsssov2 import Client
+from datetime import timedelta
 import random
 import json
 import datetime
@@ -105,8 +106,92 @@ def server_get(request, name):
     if not server.is_public and not request.user.is_authenticated():
         return HttpReponseForbidden()
 
-    # type not in ['cpu', 'mem', 'net', 'disk', 'proc', 'backup']:
-    return JsonResponse({'success': True})
+    time_now = timezone.now()
+    time_after = time_now - timedelta(hours=1000)
+
+    data = {
+        'time': time_now.isoformat(),
+        'res': {
+            'time': [],
+            'cpu': {
+                'user': [],
+                'system': [],
+                'idle': [],
+            },
+            'mem': {
+                'swap_total': [],
+                'swap_used': [],
+                'virt_avail': [],
+                'virt_used': [],
+                'virt_total': [],
+            },
+            'net': {
+                'bytes_recv': [],
+                'bytes_sent': [],
+                'packets_sent': [],
+                'packets_recv': [],
+            },
+            'disk': {},
+        },
+        'proc': {},
+        'backup': {},
+    }
+
+    usage_logs = UsageLog.objects.filter(server=server, datetime__gte=time_after).order_by('datetime')
+    for i, log in enumerate(usage_logs):
+        data['res']['time'].append(log.datetime)
+        cpu_usage, mem_usage, disk_usages, net_usage = \
+            log.get_resource_usages()
+
+        if not (cpu_usage and mem_usage and disk_usages and net_usage):
+            continue
+
+        for n in ['user', 'system', 'idle']:
+            data['res']['cpu'][n].append(getattr(cpu_usage, n))
+
+        for n in ['swap_total', 'swap_used', 'virt_avail', 'virt_used', 'virt_total']:
+            data['res']['mem'][n].append(getattr(mem_usage, n))
+
+        for n in ['bytes_recv', 'bytes_sent', 'packets_sent', 'packets_recv']:
+            data['res']['net'][n].append(getattr(net_usage, n))
+
+        for disk_usage in disk_usages:
+            dev_name = disk_usage.device_name
+            if dev_name not in data['res']['disk']:
+                data['res']['disk'][dev_name] = \
+                    {
+                        'fs_type': disk_usage.fs_type,
+                        'mount_point': disk_usage.mount_point,
+                        'used': [-1] * i,
+                        'total': [-1] * i,
+                    }
+            for n in ['used', 'total']:
+                data['res']['disk'][dev_name][n].append(getattr(disk_usage, n))
+
+    last_usage_log = usage_logs.order_by('-datetime').first()
+    proc_usages = last_usage_log.processusage_set.all()
+    data['proc']['time'] = last_usage_log.datetime.isoformat()
+    for proc_usage in proc_usages:
+        data['proc']['%s%d' % (proc_usage.type, proc_usage.order)] = \
+            {
+                'name': proc_usage.name,
+                'cpu': proc_usage.cpu,
+                'mem': proc_usage.memory,
+            }
+
+    backup_targets = BackupTarget.objects.filter(server=server)
+    for target in backup_targets:
+        last_log = BackupLog.objects.filter(server=server, target=target).order_by('-datetime').first()
+        if not last_log:
+            continue
+
+        data['backup'][target.path] = {
+            'period': target.period,
+            'time': last_log.datetime,
+            'log': last_log.log,
+            'success': last_log.success,
+        }
+    return JsonResponse(data)
 
 
 # /api/server/update/

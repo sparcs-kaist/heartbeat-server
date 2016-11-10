@@ -15,7 +15,14 @@ class Server(models.Model):
 
 class UsageLog(models.Model):
     server = models.ForeignKey('Server', db_index=True)
-    datetime = models.DateTimeField()  # 서버에서 저장시간 or client들이 정보 얻을때의 시간?
+    datetime = models.DateTimeField(db_index=True)  # 서버 저장시간
+
+    def get_resource_usages(self):
+        cpu_usage = self.cpuusage_set.first()
+        mem_usage = self.memoryusage_set.first()
+        disk_usages = self.diskusage_set.all()
+        net_usage = self.networkusage_set.first()
+        return cpu_usage, mem_usage, disk_usages, net_usage
 
 
 class CpuUsage(models.Model):
