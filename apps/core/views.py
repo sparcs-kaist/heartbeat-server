@@ -104,7 +104,7 @@ def server_get(request, name):
 
     server = servers[0]
     if not server.is_public and not request.user.is_authenticated():
-        return HttpReponseForbidden()
+        return HttpResponseForbidden()
 
     time_now = timezone.now()
     time_after = time_now - timedelta(hours=1000)
@@ -169,15 +169,16 @@ def server_get(request, name):
                 data['res']['disk'][dev_name][n].append(getattr(disk_usage, n))
 
     last_usage_log = usage_logs.order_by('-datetime').first()
-    proc_usages = last_usage_log.processusage_set.all()
-    data['proc']['time'] = last_usage_log.datetime.isoformat()
-    for proc_usage in proc_usages:
-        data['proc']['%s%d' % (proc_usage.type, proc_usage.order)] = \
-            {
-                'name': proc_usage.name,
-                'cpu': proc_usage.cpu,
-                'mem': proc_usage.memory,
-            }
+    if last_usage_log:
+        proc_usages = last_usage_log.processusage_set.all()
+        data['proc']['time'] = last_usage_log.datetime.isoformat()
+        for proc_usage in proc_usages:
+            data['proc']['%s%d' % (proc_usage.type, proc_usage.order)] = \
+                {
+                    'name': proc_usage.name,
+                    'cpu': proc_usage.cpu,
+                    'mem': proc_usage.memory,
+                }
 
     backup_targets = BackupTarget.objects.filter(server=server)
     for target in backup_targets:
@@ -218,7 +219,7 @@ def server_update(request):
 
     server = servers[0]
     if server.key != server_key:
-        return HttpReponseForbidden()
+        return HttpResponseForbidden()
 
     # x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     # if x_forwarded_for:
