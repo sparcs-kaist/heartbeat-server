@@ -5,3 +5,7 @@
 #wrap-content {
     padding-top: 10px;
 }
+
+footer.page-footer {
+    padding-top: 0;
+}
