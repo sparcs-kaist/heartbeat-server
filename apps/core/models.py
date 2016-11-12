@@ -1,4 +1,8 @@
 from django.db import models
+from django.utils import timezone
+from django.utils.timezone import localtime
+from croniter import croniter
+from datetime import datetime
 
 
 # TODO: Server class should have the attribute about backup status
@@ -80,16 +84,30 @@ class ErrorLog(models.Model):
 
 class BackupTarget(models.Model):
     server = models.ForeignKey('Server', db_index=True)
-    path = models.CharField(max_length=255)
+    name = models.CharField(max_length=30)
+    path_template = models.CharField(max_length=255)
     period = models.CharField(max_length=30)
 
+    def get_status(self):
+        all_logs = self.backuplog_set.all()
+        total_size = sum(map(lambda x: x.size, all_logs))
+
+        now = localtime(timezone.now())
+        last_log = self.backuplog_set.order_by('-datetime').first()
+        should_last_time = croniter(self.period, now).get_prev(datetime)
+        return {
+            'total_size': total_size,
+            'last_log': last_log,
+            'success': last_log.datetime >= should_last_time if last_log else None,
+        }
+
     def __str__(self):
-        return '%s: %s - %s' % (self.server, self.path, self.period)
+        return '%s: %s - %s' % (self.server, self.path_template, self.period)
 
 
 class BackupLog(models.Model):
     server = models.ForeignKey('Server', db_index=True)
-    log = models.TextField()
-    datetime = models.DateTimeField()
     target = models.ForeignKey('BackupTarget', db_index=True)
-    success = models.BooleanField()
+    datetime = models.DateTimeField()
+    path = models.CharField(max_length=255)
+    size = models.IntegerField()

@@ -7,7 +7,7 @@ class ServerAdmin(admin.ModelAdmin):
 
 
 class BackupTargetAdmin(admin.ModelAdmin):
-    list_display = ('server', 'path', 'period', )
+    list_display = ('server', 'path_template', 'period', )
 
 
 admin.site.register(UsageLog)

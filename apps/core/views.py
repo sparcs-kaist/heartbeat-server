@@ -182,15 +182,14 @@ def server_get(request, name):
 
     backup_targets = BackupTarget.objects.filter(server=server)
     for target in backup_targets:
-        last_log = BackupLog.objects.filter(server=server, target=target).order_by('-datetime').first()
-        if not last_log:
-            continue
-
-        data['backup'][target.path] = {
+        result = target.get_status()
+        last_log = result['last_log']
+        data['backup'][target.name] = {
             'period': target.period,
-            'time': last_log.datetime,
-            'log': last_log.log,
-            'success': last_log.success,
+            'time': last_log.datetime if last_log else None,
+            'size': last_log.size if last_log else 0,
+            'total_size': result['total_size'],
+            'success': result['success'],
         }
     return JsonResponse(data)
 
