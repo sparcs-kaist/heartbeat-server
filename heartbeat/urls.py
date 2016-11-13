@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^unregister/$', core_view.unregister),
 
     url(r'^api/server/$', core_view.server_list),
+    url(r'^api/server/overall$', core_view.server_overall),
     url(r'^api/server/update/$', core_view.server_update),
     url(r'^api/server/(?P<name>\w+)/$', core_view.server_get),
 

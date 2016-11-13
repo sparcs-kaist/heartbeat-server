@@ -13,6 +13,23 @@ class Server(models.Model):
     is_public = models.BooleanField(default=False)
     key = models.CharField(max_length=255)
 
+    def get_status(self):
+        last_log = self.usagelog_set.order_by('-datetime').first()
+        backup_targets = self.backuptarget_set.all()
+
+        ping_ok = None
+        if last_log:
+            ping_ok = (timezone.now() - last_log.datetime).total_seconds() < 300
+        backup_ok = {}
+        for target in backup_targets:
+            backup_status = target.get_status()
+            backup_ok[target.name] = backup_status['success']
+
+        return {
+            'ping_ok': ping_ok,
+            'backup_ok': backup_ok,
+        }
+
     def __str__(self):
         return '%s (%s)' % (self.name, self.alias)
 
@@ -98,7 +115,7 @@ class BackupTarget(models.Model):
         return {
             'total_size': total_size,
             'last_log': last_log,
-            'success': last_log.datetime >= should_last_time if last_log else None,
+            'success': last_log.datetime >= should_last_time if last_log else False,
         }
 
     def __str__(self):

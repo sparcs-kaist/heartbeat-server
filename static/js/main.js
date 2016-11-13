@@ -1,4 +1,25 @@
 $(document).ready(function() {
+    $.get('/api/server/overall', function(data) {
+        var danger_count = 0;
+        var message_list = [];
+        for (var server_name in data) {
+            var ping_ok = data[server_name]['ping_ok'];
+            if (ping_ok === false) {
+                message_list.push("Server " + server_name + " does not respond");
+                danger_count += 1;
+            }
+
+            var backup_dt = data[server_name]['backup_ok'];
+            for (var target_name in backup_dt) {
+                if (backup_dt[target_name] === false) {
+                    message_list.push("Backup " + target_name + " for server " + server_name + " does not exist");
+                    danger_count += 1;
+                }
+            }
+        }
+        console.log(message_list);
+    });
+
     var current_tab = $('.tab:first').data('name');
     var load_data = function(name) {
         $.get('/api/server/' + name, function(data) {

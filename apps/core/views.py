@@ -96,6 +96,18 @@ def server_list(request):
     return JsonResponse(data)
 
 
+# /api/server/overall/
+def server_overall(request):
+    servers = Server.objects.all()
+    if not request.user.is_authenticated():
+        servers = servers.filter(is_public=True)
+
+    data = {}
+    for server in servers:
+        data[server.name] = server.get_status()
+    return JsonResponse(data)
+
+
 # /api/server/<name>/
 def server_get(request, name):
     servers = Server.objects.filter(name=name)
@@ -135,6 +147,7 @@ def server_get(request, name):
         },
         'proc': {},
         'backup': {},
+        'ping_ok': None,
     }
 
     usage_logs = UsageLog.objects.filter(server=server, datetime__gte=time_after).order_by('datetime')
@@ -180,6 +193,8 @@ def server_get(request, name):
                     'mem': proc_usage.memory,
                 }
 
+        data['ping_ok'] =  (time_now - last_usage_log.datetime).total_seconds < 300
+
     backup_targets = BackupTarget.objects.filter(server=server)
     for target in backup_targets:
         result = target.get_status()
@@ -191,6 +206,7 @@ def server_get(request, name):
             'total_size': result['total_size'],
             'success': result['success'],
         }
+
     return JsonResponse(data)
 
 
