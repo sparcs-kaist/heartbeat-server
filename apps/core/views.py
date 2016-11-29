@@ -119,7 +119,7 @@ def server_get(request, name):
         return HttpResponseForbidden()
 
     time_now = timezone.now()
-    time_after = time_now - timedelta(hours=10000)
+    time_after = time_now - timedelta(hours=6)
 
     data = {
         'time': time_now.isoformat(),

@@ -7,82 +7,97 @@
 
 {% block content %}
 <div class="row">
-    <div class="col s12">
-        <ul class="tabs">
-            {% for server in servers %}
-            <li class="tab col s3" data-name="{{server.name}}"><a href="#{{server.name}}">{{server.alias}} ({{server.name}})</a></li>
-            {% endfor %}
-        </ul>
-    </div>
+  <div class="col s12" id="overall">
+    <h5 class="center-align" id="overall-status"></h5>
+    <ul class="center-align" id="overall-status-list"></ul>
+  </div>
+  <div class="col s12">
+    <ul class="tabs">
+      {% for server in servers %}
+        <li class="tab col s3" data-name="{{server.name}}"><a href="#{{server.name}}">{{server.alias}} <small>(id={{server.name}})</small></a></li>
+      {% endfor %}
+    </ul>
+  </div>
 
 
-    {% for server in servers %}
+  {% for server in servers %}
     <div id="{{server.name}}" class="col s12">
-        <div class="col s12">
-            {{server.alias}} {{server.ip}}
-        </div>
-        <div class="row">
-        <p class="col s12" id="most_useage_click"> Most Cpu/Mem Usage <i class="material-icons">view_list</i></p>
+      <div class="row">
+        <p class="center-align toggle" id="most-usage-toggle"><span><b>Most CPU/MEM Usage Processes</b></span> <span id="most-usage-toggle-icon">&#x25BC;</span></p>
 
-        <div class="col s6 8">
-          <table class="striped centered responsive-table h-table" id="most_cpu_useage" display="none">
+        <div class="col s12 l6 most-usage data-table">
+          <table class="striped centered">
             <thead>
-              <tr>
-                <th> Name </th>
-                <th> Cpu useage </th>
-                <th> Mem useage </th>
+              <tr class="row">
+                <th class="col s4">Name</th>
+                <th class="col s4">CPU Usage</th>
+                <th class="col s4">MEM Usage</th>
               </tr>
             </thead>
-
             <tbody>
               {% for i in "123" %}
-              <tr>
-                <td id="{{server.name}}-proc{{i}}-cpu-name"></td>
-                <td id="{{server.name}}-proc{{i}}-cpu-cpu"></td>
-                <td id="{{server.name}}-proc{{i}}-cpu-mem"></td>
+               <tr class="row">
+                <td class="col s4" id="{{server.name}}-proc{{i}}-cpu-name"></td>
+                <td class="col s4" id="{{server.name}}-proc{{i}}-cpu-cpu"></td>
+                <td class="col s4" id="{{server.name}}-proc{{i}}-cpu-mem"></td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
 
-        <div class="col s6 8">
-          <table class="striped centered responsive-table h-table" id="most_mem_useage" display="none">
+        <div class="col s12 l6 most-usage data-table">
+          <table class="striped centered">
             <thead>
-              <tr>
-                <th> Name </th>
-                <th> Cpu useage </th>
-                <th> Mem useage </th>
+              <tr class="row">
+                <th class="col s4">Name</th>
+                <th class="col s4">CPU Usage</th>
+                <th class="col s4">MEM Usage</th>
               </tr>
             </thead>
-
             <tbody>
               {% for i in "123" %}
-              <tr>
-                <td id="{{server.name}}-proc{{i}}-mem-name"></td>
-                <td id="{{server.name}}-proc{{i}}-mem-cpu"></td>
-                <td id="{{server.name}}-proc{{i}}-mem-mem"></td>
+               <tr class="row">
+                <td class="col s4" id="{{server.name}}-proc{{i}}-mem-name"></td>
+                <td class="col s4" id="{{server.name}}-proc{{i}}-mem-cpu"></td>
+                <td class="col s4" id="{{server.name}}-proc{{i}}-mem-mem"></td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-
       </div>
 
-        <div class="col s12 l6">
-            <canvas id="{{server.name}}-cpu" height="150px"></canvas>
+      <div class="row">
+          <p class="center-align toggle" id="backup-toggle"><span><b>Backup Status</b></span> <span id="backup-toggle-icon">&#x25BC;</span></p>
+        <div class="col s12 backup data-table">
+          <table class="striped centered">
+            <thead>
+              <th>Success</th>
+              <th>Name</th>
+              <th>Last Backup Time</th>
+              <th class="right-align">Last Backup Size</th>
+              <th class="right-align">Total Size</th>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
         </div>
-        <div class="col s12 l6">
-            <canvas id="{{server.name}}-mem" height="150px"></canvas>
-        </div>
-        <div class="col s12 l6">
-            <canvas id="{{server.name}}-net" height="150px"></canvas>
-        </div>
-        <div class="col s12 l6">
-            <canvas id="{{server.name}}-disk" height="150px"></canvas>
-        </div>
+      </div>
+
+      <div class="col s12 l6">
+        <canvas id="{{server.name}}-cpu" height="150px"></canvas>
+      </div>
+      <div class="col s12 l6">
+        <canvas id="{{server.name}}-mem" height="150px"></canvas>
+      </div>
+      <div class="col s12 l6">
+        <canvas id="{{server.name}}-net" height="150px"></canvas>
+      </div>
+      <div class="col s12 l6">
+        <canvas id="{{server.name}}-disk" height="150px"></canvas>
+      </div>
     </div>
-    {% endfor %}
+  {% endfor %}
 </div>
 {% endblock %}

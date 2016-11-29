@@ -1,17 +1,28 @@
 .tabs .tab {
     text-transform: initial;
 }
-#most_mem_useage{
-    display: none;
-}
-#most_cpu_useage{
-    display: none;
-}
-.h-table td{
-    padding : 0;
-}
+
 #wrap-content {
     padding-top: 10px;
+}
+
+.toggle {
+    margin-bottom: -10px;
+}
+.data-table td, .data-table th {
+    padding: 0;
+}
+.data-table {
+    padding-top: 20px !important;
+}
+
+.backup-row-icon {
+    font-size: 1rem;
+    padding-top: 2px;
+}
+
+h4 small {
+    font-size: 50%;
 }
 
 footer.page-footer {

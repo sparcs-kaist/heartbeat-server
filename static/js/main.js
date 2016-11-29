@@ -1,42 +1,87 @@
 $(document).ready(function() {
+    var pretty_size = function(size) {
+        var postfix = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+        index = 0;
+        while (size >= 1024) {
+            index += 1;
+            size /= 1024;
+        }
+        return Math.round(size * 100) / 100 + postfix[index];
+    };
+
     $.get('/api/server/overall', function(data) {
         var danger_count = 0;
         var message_list = [];
         for (var server_name in data) {
             var ping_ok = data[server_name]['ping_ok'];
             if (ping_ok === false) {
-                message_list.push("Server " + server_name + " does not respond");
+                message_list.push("server " + server_name + " does not respond");
                 danger_count += 1;
             }
 
             var backup_dt = data[server_name]['backup_ok'];
             for (var target_name in backup_dt) {
                 if (backup_dt[target_name] === false) {
-                    message_list.push("Backup " + target_name + " for server " + server_name + " does not exist");
+                    message_list.push("backup " + target_name + " of server " + server_name + " was old");
                     danger_count += 1;
                 }
             }
         }
-        console.log(message_list);
+        if (message_list.length > 0) {
+            $('#overall-status').html('Overall Status: FAIL');
+            $('#overall-status').addClass('red-text darken-4');
+        } else {
+            $('#overall-status').html('Overall Status: OK');
+            $('#overall-status').addClass('teal-text darken-4');
+        }
+
+        for (var i in message_list) {
+            $('#overall-status-list').append('<li>!' + message_list[i] + '!</li>');
+        }
     });
 
     var current_tab = $('.tab:first').data('name');
     var load_data = function(name) {
         $.get('/api/server/' + name, function(data) {
-            $('#most_useage_click').click(function(){
-              var state = $('#most_cpu_useage').toggle();
-              var state = $('#most_mem_useage').toggle();
+            /* Most CPU/MEM Usage Processes */
+            $('#most-usage-toggle').click(function(){
+              var show = $('.most-usage').is(":visible");
+              $('.most-usage').toggle();
+              $('#most-usage-toggle-icon').html(show ? '&#x25B2' : '&#x25BC');
             });
-            for(var i=1 ; i<=3; i++){
-              $('#' + name + "-proc" + i.toString() + "-cpu-name").html(data['proc']['C' + i.toString()]['name']);
-              $('#' + name + "-proc" + i.toString() + "-cpu-cpu").html(data['proc']['C' + i.toString()]['cpu']);
-              $('#' + name + "-proc" + i.toString() + "-cpu-mem").html(data['proc']['C' + i.toString()]['mem']);
+            for (var i=1; i<=3; i++){
+              $('#' + name + "-proc" + i + "-cpu-name").html(data['proc']['C' + i]['name']);
+              $('#' + name + "-proc" + i + "-cpu-cpu").html(data['proc']['C' + i]['cpu'] + "%");
+              $('#' + name + "-proc" + i + "-cpu-mem").html(data['proc']['C' + i]['mem'] + "%");
             }
-            for(var i=1 ; i<=3; i++){
-              $('#' + name + "-proc" + i.toString() + "-mem-name").html(data['proc']['M' + i.toString()]['name']);
-              $('#' + name + "-proc" + i.toString() + "-mem-cpu").html(data['proc']['M' + i.toString()]['cpu']);
-              $('#' + name + "-proc" + i.toString() + "-mem-mem").html(data['proc']['M' + i.toString()]['mem']);
+            for (var i=1; i<=3; i++){
+              $('#' + name + "-proc" + i + "-mem-name").html(data['proc']['M' + i]['name']);
+              $('#' + name + "-proc" + i + "-mem-cpu").html(data['proc']['M' + i]['cpu'] + "%");
+              $('#' + name + "-proc" + i + "-mem-mem").html(data['proc']['M' + i]['mem'] + "%");
             }
+
+            /* Backup Status */
+            $('#backup-toggle').click(function(){
+              var show = $('.backup').is(":visible");
+              $('.backup').toggle();
+              $('#backup-toggle-icon').html(show ? '&#x25B2' : '&#x25BC');
+            });
+
+            var backup = data['backup'];
+            $('.backup tbody').html('');
+            for (var n in backup) {
+                var success_b = '<td><i class="material-icons green-text backup-row-icon">done</i></td>';
+                if (backup[n]['success'] === false)
+                    success_b = '<td><i class="material-icons orange-text backup-row-icon">report_problem</i></td>';
+                var name_b = '<td>' + n + '</td>';
+                var time_b = '<td>' + backup[n]['time'] + '</td>';
+                var size_b = '<td>' + pretty_size(backup[n]['size']) + '</td>';
+                var total_b = '<td>' + pretty_size(backup[n]['total_size']) + '</td>';
+                $('.backup tbody').append('<tr>' + success_b + name_b + time_b + size_b + total_b + '</tr>');
+            }
+
+            /* Resource Graph */
             var res_time = data['res']['time'];
             var res_data = {
                 cpu: {
