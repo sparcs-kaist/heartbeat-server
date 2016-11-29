@@ -9,6 +9,10 @@ $(document).ready(function() {
         }
         return Math.round(size * 100) / 100 + postfix[index];
     };
+    var utc2kst = function(time) {
+        var d = new Date(new Date(time).getTime() + 3600000 * 9).toISOString();
+        return d.substring(0, d.length - 5) + 'KST';
+    };
 
     $.get('/api/server/overall', function(data) {
         var danger_count = 0;
@@ -75,7 +79,7 @@ $(document).ready(function() {
                 if (backup[n]['success'] === false)
                     success_b = '<td><i class="material-icons orange-text backup-row-icon">report_problem</i></td>';
                 var name_b = '<td>' + n + '</td>';
-                var time_b = '<td>' + backup[n]['time'] + '</td>';
+                var time_b = '<td>' + utc2kst(backup[n]['time']) + '</td>';
                 var size_b = '<td>' + pretty_size(backup[n]['size']) + '</td>';
                 var total_b = '<td>' + pretty_size(backup[n]['total_size']) + '</td>';
                 $('.backup tbody').append('<tr>' + success_b + name_b + time_b + size_b + total_b + '</tr>');
