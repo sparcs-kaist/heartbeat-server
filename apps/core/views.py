@@ -119,7 +119,7 @@ def server_get(request, name):
         return HttpResponseForbidden()
 
     time_now = timezone.now()
-    time_after = time_now - timedelta(hours=10)
+    time_after = time_now - timedelta(hours=10000)
 
     data = {
         'time': time_now.isoformat(),
@@ -193,7 +193,7 @@ def server_get(request, name):
                     'mem': proc_usage.memory,
                 }
 
-        data['ping_ok'] =  (time_now - last_usage_log.datetime).total_seconds < 300
+        data['ping_ok'] =  (time_now - last_usage_log.datetime).total_seconds() < 300
 
     backup_targets = BackupTarget.objects.filter(server=server)
     for target in backup_targets:

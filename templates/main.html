@@ -14,11 +14,62 @@
             {% endfor %}
         </ul>
     </div>
+
+
     {% for server in servers %}
     <div id="{{server.name}}" class="col s12">
         <div class="col s12">
             {{server.alias}} {{server.ip}}
         </div>
+        <div class="row">
+        <p class="col s12" id="most_useage_click"> Most Cpu/Mem Usage <i class="material-icons">view_list</i></p>
+
+        <div class="col s6 8">
+          <table class="striped centered responsive-table h-table" id="most_cpu_useage" display="none">
+            <thead>
+              <tr>
+                <th> Name </th>
+                <th> Cpu useage </th>
+                <th> Mem useage </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for i in "123" %}
+              <tr>
+                <td id="{{server.name}}-proc{{i}}-cpu-name"></td>
+                <td id="{{server.name}}-proc{{i}}-cpu-cpu"></td>
+                <td id="{{server.name}}-proc{{i}}-cpu-mem"></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="col s6 8">
+          <table class="striped centered responsive-table h-table" id="most_mem_useage" display="none">
+            <thead>
+              <tr>
+                <th> Name </th>
+                <th> Cpu useage </th>
+                <th> Mem useage </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for i in "123" %}
+              <tr>
+                <td id="{{server.name}}-proc{{i}}-mem-name"></td>
+                <td id="{{server.name}}-proc{{i}}-mem-cpu"></td>
+                <td id="{{server.name}}-proc{{i}}-mem-mem"></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
         <div class="col s12 l6">
             <canvas id="{{server.name}}-cpu" height="150px"></canvas>
         </div>

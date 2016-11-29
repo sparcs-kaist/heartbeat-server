@@ -23,6 +23,20 @@ $(document).ready(function() {
     var current_tab = $('.tab:first').data('name');
     var load_data = function(name) {
         $.get('/api/server/' + name, function(data) {
+            $('#most_useage_click').click(function(){
+              var state = $('#most_cpu_useage').toggle();
+              var state = $('#most_mem_useage').toggle();
+            });
+            for(var i=1 ; i<=3; i++){
+              $('#' + name + "-proc" + i.toString() + "-cpu-name").html(data['proc']['C' + i.toString()]['name']);
+              $('#' + name + "-proc" + i.toString() + "-cpu-cpu").html(data['proc']['C' + i.toString()]['cpu']);
+              $('#' + name + "-proc" + i.toString() + "-cpu-mem").html(data['proc']['C' + i.toString()]['mem']);
+            }
+            for(var i=1 ; i<=3; i++){
+              $('#' + name + "-proc" + i.toString() + "-mem-name").html(data['proc']['M' + i.toString()]['name']);
+              $('#' + name + "-proc" + i.toString() + "-mem-cpu").html(data['proc']['M' + i.toString()]['cpu']);
+              $('#' + name + "-proc" + i.toString() + "-mem-mem").html(data['proc']['M' + i.toString()]['mem']);
+            }
             var res_time = data['res']['time'];
             var res_data = {
                 cpu: {

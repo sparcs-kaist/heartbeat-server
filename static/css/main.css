@@ -1,7 +1,15 @@
 .tabs .tab {
     text-transform: initial;
 }
-
+#most_mem_useage{
+    display: none;
+}
+#most_cpu_useage{
+    display: none;
+}
+.h-table td{
+    padding : 0;
+}
 #wrap-content {
     padding-top: 10px;
 }
