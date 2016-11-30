@@ -67,8 +67,8 @@ class DiskUsage(models.Model):
     device_name = models.CharField(max_length=30)  # ex) dev/sda ...
     fs_type = models.CharField(max_length=10)  # Filesystem type
     mount_point = models.CharField(max_length=30)  # Disk mount path
-    used = models.IntegerField()  # byte
-    total = models.IntegerField()  # byte
+    used = models.BigIntegerField()  # byte
+    total = models.BigIntegerField()  # byte
 
 
 class ProcessUsage(models.Model):
@@ -87,10 +87,10 @@ class ProcessUsage(models.Model):
 
 class NetworkUsage(models.Model):
     usagelog = models.ForeignKey('UsageLog', db_index=True)
-    bytes_recv = models.IntegerField()  # bytes
-    bytes_sent = models.IntegerField()
-    packets_recv = models.IntegerField()  # count
-    packets_sent = models.IntegerField()
+    bytes_recv = models.BigIntegerField()  # bytes
+    bytes_sent = models.BigIntegerField()
+    packets_recv = models.BigIntegerField()  # count
+    packets_sent = models.BigIntegerField()
 
 
 class ErrorLog(models.Model):
@@ -127,4 +127,4 @@ class BackupLog(models.Model):
     target = models.ForeignKey('BackupTarget', db_index=True)
     datetime = models.DateTimeField()
     path = models.CharField(max_length=255)
-    size = models.IntegerField()
+    size = models.BigIntegerField()
