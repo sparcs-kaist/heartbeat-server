@@ -15,9 +15,19 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from apps.core import views
+from apps.core import views as core_view
 
 urlpatterns = [
+    url(r'^$', core_view.main),
+    url(r'^login/$', core_view.login),
+    url(r'^login/callback/$', core_view.login_callback),
+    url(r'^logout/$', core_view.logout),
+    url(r'^unregister/$', core_view.unregister),
+
+    url(r'^api/server/$', core_view.server_list),
+    url(r'^api/server/overall$', core_view.server_overall),
+    url(r'^api/server/update/$', core_view.server_update),
+    url(r'^api/server/(?P<name>\w+)/$', core_view.server_get),
+
     url(r'^admin/', admin.site.urls),
-    url(r'^api/update/$', views.update)
 ]

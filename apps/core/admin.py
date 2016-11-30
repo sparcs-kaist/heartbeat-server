@@ -1,3 +1,14 @@
 from django.contrib import admin
+from apps.core.models import Server, BackupTarget
 
-# Register your models here.
+
+class ServerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'alias', 'ip', )
+
+
+class BackupTargetAdmin(admin.ModelAdmin):
+    list_display = ('server', 'path_template', 'period', )
+
+
+admin.site.register(Server, ServerAdmin)
+admin.site.register(BackupTarget, BackupTargetAdmin)

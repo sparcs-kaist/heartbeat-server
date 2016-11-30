@@ -24,3 +24,6 @@ venv/
 
 # db
 *.sqlite3
+
+# local settings
+settings_local.py
