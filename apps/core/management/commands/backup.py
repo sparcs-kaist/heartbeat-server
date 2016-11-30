@@ -4,6 +4,7 @@ from django.utils.timezone import localtime
 from apps.core.models import Server, BackupTarget, BackupLog
 from croniter import croniter
 from datetime import datetime
+import pytz
 import os
 
 
@@ -23,7 +24,8 @@ class Command(BaseCommand):
             if not os.path.exists(path):
                 continue
 
-            backup_time = os.path.getmtime(path)
+            local_tz = pytz.timezone('Asia/Seoul')
+            backup_time = datetime.fromtimestamp(os.path.getmtime(path)).replace(tzinfo=local_tz)
             backup_size = os.path.getsize(path)
 
             logs_count = BackupLog.objects.filter(target=target, path=path).count()
