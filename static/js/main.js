@@ -27,7 +27,7 @@ $(document).ready(function() {
             var backup_dt = data[server_name]['backup_ok'];
             for (var target_name in backup_dt) {
                 if (backup_dt[target_name] === false) {
-                    message_list.push("backup " + target_name + " of server " + server_name + " was old");
+                    message_list.push(target_name + " backup of server " + server_name + " was old");
                     danger_count += 1;
                 }
             }
@@ -54,15 +54,17 @@ $(document).ready(function() {
               $('.most-usage').toggle();
               $('#most-usage-toggle-icon').html(show ? '&#x25B2' : '&#x25BC');
             });
-            for (var i=1; i<=3; i++){
-              $('#' + name + "-proc" + i + "-cpu-name").html(data['proc']['C' + i]['name']);
-              $('#' + name + "-proc" + i + "-cpu-cpu").html(data['proc']['C' + i]['cpu'] + "%");
-              $('#' + name + "-proc" + i + "-cpu-mem").html(data['proc']['C' + i]['mem'] + "%");
-            }
-            for (var i=1; i<=3; i++){
-              $('#' + name + "-proc" + i + "-mem-name").html(data['proc']['M' + i]['name']);
-              $('#' + name + "-proc" + i + "-mem-cpu").html(data['proc']['M' + i]['cpu'] + "%");
-              $('#' + name + "-proc" + i + "-mem-mem").html(data['proc']['M' + i]['mem'] + "%");
+            if (Object.keys(data['proc']).length >= 6) {
+                for (var i=1; i<=3; i++){
+                  $('#' + name + "-proc" + i + "-cpu-name").html(data['proc']['C' + i]['name']);
+                  $('#' + name + "-proc" + i + "-cpu-cpu").html(data['proc']['C' + i]['cpu'] + "%");
+                  $('#' + name + "-proc" + i + "-cpu-mem").html(data['proc']['C' + i]['mem'] + "%");
+                }
+                for (var i=1; i<=3; i++){
+                  $('#' + name + "-proc" + i + "-mem-name").html(data['proc']['M' + i]['name']);
+                  $('#' + name + "-proc" + i + "-mem-cpu").html(data['proc']['M' + i]['cpu'] + "%");
+                  $('#' + name + "-proc" + i + "-mem-mem").html(data['proc']['M' + i]['mem'] + "%");
+                }
             }
 
             /* Backup Status */
