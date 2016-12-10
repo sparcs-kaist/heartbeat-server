@@ -29,7 +29,7 @@ class Command(BaseCommand):
             backup_size = os.path.getsize(path)
 
             logs_count = BackupLog.objects.filter(target=target, path=path).count()
-            if logs_count > 0:
+            if logs_count > 0 and path != path_template:
                 continue
 
             BackupLog(server=server, target=target, datetime=backup_time,
